@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mis Tareas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: #fff0f6;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #d63384;
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+
+    .contenedor {
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    /* Formulario nueva tarea */
+    .form-nueva {
+      background-color: white;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #f1afc6;
+    }
+
+    .form-nueva input[type="text"],
+    .form-nueva textarea,
+    .form-nueva select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #f1afc6;
+      border-radius: 8px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
+      box-sizing: border-box;
+    }
+
+    .form-nueva textarea {
+      height: 60px;
+      resize: none;
+    }
+
+    .btn-añadir {
+      background-color: #d63384;
+      color: white;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 8px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-añadir:hover {
+      background-color: #b52b6e;
+    }
+
+    /* Filtros */
+    .filtros {
+      margin-bottom: 15px;
+    }
+
+    .filtros a {
+      display: inline-block;
+      padding: 5px 14px;
+      margin-right: 5px;
+      border-radius: 20px;
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #d63384;
+      border: 1px solid #f1afc6;
+      background-color: white;
+    }
+
+    .filtros a.activo {
+      background-color: #d63384;
+      color: white;
+      border-color: #d63384;
+    }
+
+    /* Tareas */
+    .tarea {
+      background-color: white;
+      border: 1px solid #f1afc6;
+      border-radius: 10px;
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tarea.completada {
+      opacity: 0.5;
+      text-decoration: line-through;
+    }
+
+    .tarea-info {
+      flex: 1;
+    }
+
+    .tarea-titulo {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #333;
+    }
+
+    .tarea-desc {
+      font-size: 0.82rem;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    .tarea-meta {
+      font-size: 0.75rem;
+      color: #aaa;
+      margin-top: 4px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      margin-right: 5px;
+    }
+
+    .badge-alta  { background-color: #ffe0e6; color: #c0392b; }
+    .badge-media { background-color: #fff3cd; color: #856404; }
+    .badge-baja  { background-color: #d1f8e8; color: #1a7a4a; }
+
+    .acciones a {
+      text-decoration: none;
+      margin-left: 5px;
+      font-size: 0.85rem;
+      color: #888;
+    }
+
+    .acciones a:hover {
+      color: #d63384;
+    }
+
+    .sin-tareas {
+      text-align: center;
+      color: #aaa;
+      padding: 30px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="contenedor">
+
+    <h1>🌸 Mis Tareas</h1>
+
+    <!-- Formulario nueva tarea -->
+    <div class="form-nueva">
+      <form action="/nueva" method="POST">
+        <input type="text" name="titulo" placeholder="Nueva tarea..." required>
+        <textarea name="descripcion" placeholder="Descripción (opcional)"></textarea>
+        <select name="prioridad">
+          <option value="baja">Baja</option>
+          <option value="media" selected>Media</option>
+          <option value="alta">Alta</option>
+        </select>
+        <button class="btn-añadir" type="submit">+ Añadir</button>
+      </form>
+    </div>
+
+    <!-- Filtros -->
+    <div class="filtros">
+      <a href="/?filtro=todas"       class="{% if filtro == 'todas' %}activo{% endif %}">Todas</a>
+      <a href="/?filtro=pendientes"  class="{% if filtro == 'pendientes' %}activo{% endif %}">Pendientes</a>
+      <a href="/?filtro=completadas" class="{% if filtro == 'completadas' %}activo{% endif %}">Completadas</a>
+    </div>
+
+    <!-- Lista de tareas -->
+    {% if tareas %}
+      {% for tarea in tareas %}
+      <div class="tarea {% if tarea.completada %}completada{% endif %}">
+        <div class="tarea-info">
+          <div class="tarea-titulo">{{ tarea.titulo }}</div>
+          {% if tarea.descripcion %}
+          <div class="tarea-desc">{{ tarea.descripcion }}</div>
+          {% endif %}
+          <div class="tarea-meta">
+            <span class="badge badge-{{ tarea.prioridad }}">{{ tarea.prioridad }}</span>
+            {{ tarea.fecha_creacion }}
+          </div>
+        </div>
+        <div class="acciones">
+          <a href="/completar/{{ tarea.id }}">✅</a>
+          <a href="/editar/{{ tarea.id }}">✏️</a>
+          <a href="/eliminar/{{ tarea.id }}" onclick="return confirm('¿Eliminar esta tarea?')">🗑️</a>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="sin-tareas">No hay tareas aquí todavía.</p>
+    {% endif %}
+
+  </div>
+</body>
+</html>
